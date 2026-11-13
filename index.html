@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disramer Cripto - Guía Interactiva y Ecosistema</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #05070a;
+            --card-bg: #0f1420;
+            --card-hover: #161e31;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .progress-steps span.active-step {
+            color: var(--accent-cyan);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #0b0f19;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            width: 33%;
+            transition: width 0.4s ease;
+        }
+
+        /* Stages Cards */
+        .stage-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .stage-card.locked {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(40%);
+        }
+
+        .stage-card.locked::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 7, 10, 0.8);
+            border-radius: 16px;
+        }
+
+        .lock-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            display: none;
+        }
+
+        .stage-card.locked .lock-overlay {
+            display: block;
+        }
+
+        .lock-overlay i {
+            font-size: 2.5rem;
+            color: var(--warning);
+            margin-bottom: 8px;
+        }
+
+        .lock-overlay p {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background: rgba(15, 20, 32, 0.95);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .stage-title {
+            font-size: 1.25rem;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge.completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        p, ul {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.08);
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #fbbf24;
+        }
+
+        /* Tasks & Interactive Elements */
+        .tasks-container {
+            background: rgba(5, 7, 10, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 15px;
+        }
+
+        .tasks-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--accent-cyan);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            color: var(--bg-color);
+            font-weight: 600;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            margin-left: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        .wallet-status {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .wallet-status.success {
+            color: var(--success);
+        }
+
+        .wallet-status.error {
+            color: var(--danger);
+        }
+
+        /* Quiz styles */
+        .quiz-question {
+            margin-bottom: 15px;
+        }
+
+        .quiz-question p {
+            color: var(--text-main);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .quiz-option {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent-cyan);
+            color: var(--text-main);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        /* Links Grid in Stage 3 */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .link-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: border-color 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .link-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+            color: var(--accent-cyan);
+        }
+
+        .link-card i {
+            font-size: 1.2rem;
+        }
+
+        .dapp-cta-container {
+            margin: 20px 0;
+            text-align: center;
+            background: rgba(0, 212, 255, 0.04);
+            border: 1px dashed var(--accent-cyan);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .dapp-cta-container p {
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .btn-dapp {
+            background: linear-gradient(135deg, #00d4ff, #3b82f6);
+            color: #05070a;
+            font-weight: 700;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.25);
+        }
+
+        /* Floating WhatsApp Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #25d366;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.05);
+        }
+
+        /* Footer Reset Action */
+        .footer-actions {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .disclaimer {
+            font-size: 0.75rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botón Flotante de WhatsApp -->
+    <a href="https://wa.me/5804149309101?text=Hola%20Disramer%20Cripto,%20deseo%20asesoria%20para%20comprar%20nodos" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <i class="fa-brands fa-whatsapp" style="font-size: 1.4rem;"></i> ¡Escríbenos por WhatsApp!
+    </a>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-cube"></i> Disramer Cripto</h1>
+            <p class="subtitle">Guía Interactiva de Onboarding y Ecosistema Descentralizado</p>
+        </header>
+
+        <!-- Barra de Progreso -->
+        <div class="progress-container">
+            <div class="progress-steps">
+                <span id="step-label-1" class="active-step">Etapa 1: Fundamentos</span>
+                <span id="step-label-2">Etapa 2: Compra Paso a Paso</span>
+                <span id="step-label-3">Etapa 3: Ecosistema Avanzado</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-bar" class="progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <!-- ETAPA 1 -->
+        <div id="stage-1" class="stage-card">
+            <div class="stage-header">
+                <h2 class="stage-title"><i class="fa-solid fa-book-open"></i> Etapa 1 — Fundamentos</h2>
+                <span id="badge-1" class="badge pending">Pendiente</span>
+            </div>
+            
+            <p><strong>CÓMO COMPRAR NODES EN EL ECOSISTEMA</strong></p>
+            <p><em>Powered by BNB Smart Chain — ¡Impulsa tu economía, descentraliza tus finanzas con Disramer Cripto!</em></p>
+            
+            <p>Los NODES son el recurso principal. Al adquirirlos, obtienes acceso al minteo del token $ASM, poder de VOTO dentro de la democracia interna, beneficios del TESORO (90% de las ganancias distribuidas proporcionalmente + 10% extra para niveles 6 al 11) y acceso al sistema de afiliados TriFlux.</p>
+            
+            <div class="warning-box">
+                <i class="fa-solid fa-triangle-exclamation"></i> <strong>Importante:</strong> Los NODES deben adquirirse en orden ascendente, uno por uno. Comprar niveles superiores garantiza mejores recompensas del TESORO.
+            </div>
+
+            <p><strong>Requisitos previos:</strong> Billetera Web3 (MetaMask / SafePal), Red BNB Smart Chain Mainnet, saldo pequeño de BNB (~1 USD) para gas.</p>
+
+            <div class="tasks-container">
+                <div class="tasks-title">Tareas para desbloquear la Etapa 2:</div>
+                
+                <label class="task-item">
+                    <input type="checkbox" id="task-1-1" onchange="checkStage1()">
+                    <span>He leído qué son los NODES y entiendo que debo comprarlos en orden ascendente.</span>
+                </label>
+
+                <div style="margin-top: 15px;">
+                    <button class="btn" onclick="detectWallet()"><i class="fa-solid fa-wallet"></i> Verificar mi billetera</button>
+                    <button class="btn btn-secondary" onclick="simulateWallet()"><i class="fa-solid fa-bolt"></i> Simular (Modo Prueba)</button>
+                    <div id="wallet-status" class="wallet-status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETAPA 2 -->
+        <div id="stage-2" class="stage-card locked">
+            <div class="lock-overlay">
+                <i class="fa-solid fa-lock"></i>
+                <p>Completa la Etapa 1 para desbloquear</p>
+            </div>
+            <div class="stage-header">
+                <h2 class="stage-title"><i class="fa-solid fa-cart-shopping"></i> Etapa 2 — Compra Paso a Paso</h2>
+                <span id="badge-2" class="badge pending">Bloqueada</span>
+            </div>
+
+            <ul>
+                <li><strong>Paso 1:</strong> Prepara tu billetera y fondea con BNB o USDT (BEP-20). Mantén ~1 USD en BNB para fees.</li>
+                <li><strong>Paso 2:</strong> Conecta tu billetera al portal oficial de afiliados: <a href="https://web.asmdao.com/0x23ad8789e83351ff15C1fB37f01D21CAB210774f" target="_blank" rel="noopener noreferrer" style="color: var(--accent-cyan);">Abrir Portal Oficial</a>.</li>
+                <li><strong>Paso 3:</strong> Selecciona tu NODE. Niveles:
+                    <ul>
+                        <li><em>Nivel 01/02 – Basic:</em> $25 — $50 (Acceso DAO, recompensas básicas).</li>
+                        <li><em>Nivel 03 – Silver/Gold:</em> $100 — $200 (Mayor share, voto, soporte prioritario).</li>
+                        <li><em>Nivel 11 – Master DAO:</em> $25,600 (Gobernanza máxima, real estate premium).</li>
+                    </ul>
+                </li>
+                <li><strong>Paso 4:</strong> Configura el Slippage al <strong>1.1%</strong> en el icono de engranaje antes de hacer Swap. Confirma la transacción revisando el gas.</li>
+                <li><strong>Paso 5:</strong> Agrega el token $ASM a tu billetera importando el contrato oficial.</li>
+            </ul>
+
+            <div class="tasks-container">
+                <div class="tasks-title">Mini-Quiz de validación y confirmación:</div>
+
+                <div class="quiz-question">
+                    <p>1. ¿Qué red debes usar para operar en la plataforma?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="answerQuiz(1, 'A', false)">Ethereum</div>
+                        <div class="quiz-option" onclick="answerQuiz(1, 'B', true)">BNB Smart Chain</div>
+                        <div class="quiz-option" onclick="answerQuiz(1, 'C', false)">Polygon</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p>2. ¿Qué slippage se recomienda configurar en la dApp?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="answerQuiz(2, 'A', false)">0.1%</div>
+                        <div class="quiz-option" onclick="answerQuiz(2, 'B', true)">1.1%</div>
+                        <div class="quiz-option" onclick="answerQuiz(2, 'C', false)">10.0%</div>
+                    </div>
+                </div>
+
+                <label class="task-item" style="margin-top: 15px;">
+                    <input type="checkbox" id="task-2-3" onchange="checkStage2()">
+                    <span>Entiendo que debo importar manualmente el token $ASM con la dirección del contrato oficial.</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- ETAPA 3 -->
+        <div id="stage-3" class="stage-card locked">
+            <div class="lock-overlay">
+                <i class="fa-solid fa-lock"></i>
+                <p>Completa la Etapa 2 para desbloquear</p>
+            </div>
+            <div class="stage-header">
+                <h2 class="stage-title"><i class="fa-solid fa-rocket"></i> Etapa 3 — Ecosistema Avanzado</h2>
+                <span id="badge-3" class="badge pending">Bloqueada</span>
+            </div>
+
+            <p><strong>Beneficios del TESORO:</strong> 90% de ganancias distribuidas proporcionalmente entre todos los NODES. Niveles 6 al 11 reciben 10% adicional.</p>
+            <p><strong>Sistema TriFlux:</strong> Invita a otros a comprar NODES. El 50% del valor del node se distribuye: 50% para ti (posiciones 1 y 2) y 50% para tu patrocinador (posición 3 - CICLO). Es obligatorio tener el NODE activo para recibir comisión. Pagos en $CONCILIUM.</p>
+            <p><strong>Robot de Estabilización:</strong> El 5% de cada NODE se acumula. Si $ASM cae por debajo de 9 USD, el robot compra hasta 11 USD, garantizando precio y creando pool de recompensas.</p>
+            <p><strong>Tokenomics:</strong> 100% descentralizado, hiperdeflacionario (quema en DEX desde fase 2). 0% inflacionario. Sin asignaciones para DEV, sin VC, sin ventas privadas.</p>
+
+            <div class="dapp-cta-container">
+                <p>🚀 ¡Ya estás listo para acceder a la plataforma oficial de afiliados!</p>
+                <a href="https://web.asmdao.com/0x23ad8789e83351ff15C1fB37f01D21CAB210774f" target="_blank" rel="noopener noreferrer" class="btn btn-dapp">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Ir al Portal Oficial de Afiliados
+                </a>
+            </div>
+
+            <div class="links-grid">
+                <a href="https://youtu.be/p5ZIzbKj894" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <i class="fa-brands fa-youtube" style="color: #ef4444;"></i>
+                    <span>Tutorial en YouTube</span>
+                </a>
+                <a href="https://us.wps.com/cms/docs/d/cbTannmQoGz6LvU3" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <i class="fa-solid fa-file-lines" style="color: var(--accent-cyan);"></i>
+                    <span>Documentación Oficial</span>
+                </a>
+                <a href="https://wa.me/5804149309101?text=Hola%20Disramer%20Cripto,%20deseo%20ver%20testimonios" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i>
+                    <span>Testimonios WhatsApp</span>
+                </a>
+                <a href="https://wa.me/5804149309101?text=Hola%20Disramer%20Cripto,%20necesito%20material%20visual" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <i class="fa-solid fa-folder-open" style="color: var(--warning);"></i>
+                    <span>Material Visual</span>
+                </a>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="https://web.asmdao.com/0x23ad8789e83351ff15C1fB37f01D21CAB210774f" target="_blank" rel="noopener noreferrer" class="btn">
+                    <i class="fa-solid fa-seedling"></i> Ir al Portal de Farming
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-actions">
+            <button class="btn-reset" onclick="resetProgress()"><i class="fa-solid fa-rotate-right"></i> Reiniciar Progreso</button>
+        </div>
+
+        <div class="disclaimer">
+            Disramer Cripto © 2026. Material educativo y de afiliados. Las criptomonedas implican riesgo. Verifica siempre los enlaces oficiales.
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            stage1Checked: false,
+            walletVerified: false,
+            quiz1Correct: false,
+            quiz2Correct: false,
+            stage2Checked: false
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('disramer_crypto_progress');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                    restoreUI();
+                } catch (e) {
+                    console.error("Error al cargar localStorage", e);
+                }
+            }
+            updateProgress();
+        });
+
+        function saveState() {
+            localStorage.setItem('disramer_crypto_progress', JSON.stringify(state));
+            updateProgress();
+        }
+
+        function checkStage1() {
+            state.stage1Checked = document.getElementById('task-1-1').checked;
+            saveState();
+        }
+
+        function detectWallet() {
+            const statusEl = document.getElementById('wallet-status');
+            if (typeof window.ethereum !== 'undefined') {
+                state.walletVerified = true;
+                statusEl.textContent = "Billetera Web3 detectada correctamente ✅";
+                statusEl.className = "wallet-status success";
+            } else {
+                state.walletVerified = false;
+                statusEl.textContent = "No se detectó billetera en este navegador. Usa MetaMask o SafePal o usa el Modo Prueba.";
+                statusEl.className = "wallet-status error";
+            }
+            saveState();
+        }
+
+        function simulateWallet() {
+            state.walletVerified = true;
+            const statusEl = document.getElementById('wallet-status');
+            statusEl.textContent = "Billetera simulada con éxito (Modo Prueba) ✅";
+            statusEl.className = "wallet-status success";
+            saveState();
+        }
+
+        function answerQuiz(questionNum, optionKey, isCorrect) {
+            const container = event.currentTarget.parentElement;
+            const options = container.querySelectorAll('.quiz-option');
+            
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+
+            const clickedOption = event.currentTarget;
+            
+            if (isCorrect) {
+                clickedOption.classList.add('correct');
+                if (questionNum === 1) state.quiz1Correct = true;
+                if (questionNum === 2) state.quiz2Correct = true;
+            } else {
+                clickedOption.classList.add('incorrect');
+                if (questionNum === 1) state.quiz1Correct = false;
+                if (questionNum === 2) state.quiz2Correct = false;
+            }
+            saveState();
+        }
+
+        function checkStage2() {
+            state.stage2Checked = document.getElementById('task-2-3').checked;
+            saveState();
+        }
+
+        function isStage1Complete() {
+            return state.stage1Checked && state.walletVerified;
+        }
+
+        function isStage2Complete() {
+            return state.quiz1Correct && state.quiz2Correct && state.stage2Checked;
+        }
+
+        function updateProgress() {
+            document.getElementById('task-1-1').checked = state.stage1Checked;
+            if (state.walletVerified && !document.getElementById('wallet-status').textContent) {
+                document.getElementById('wallet-status').textContent = "Billetera verificada ✅";
+                document.getElementById('wallet-status').className = "wallet-status success";
+            }
+            document.getElementById('task-2-3').checked = state.stage2Checked;
+
+            const stage2El = document.getElementById('stage-2');
+            const stage3El = document.getElementById('stage-3');
+            const badge1 = document.getElementById('badge-1');
+            const badge2 = document.getElementById('badge-2');
+            const badge3 = document.getElementById('badge-3');
+            
+            const label1 = document.getElementById('step-label-1');
+            const label2 = document.getElementById('step-label-2');
+            const label3 = document.getElementById('step-label-3');
+            const fillBar = document.getElementById('progress-bar');
+
+            let progressPercent = 33;
+
+            if (isStage1Complete()) {
+                stage2El.classList.remove('locked');
+                badge1.textContent = "Completado";
+                badge1.className = "badge completed";
+                label1.classList.remove('active-step');
+                label2.classList.add('active-step');
+                progressPercent = 66;
+            } else {
+                stage2El.classList.add('locked');
+                badge1.textContent = "Pendiente";
+                badge1.className = "badge pending";
+                badge2.textContent = "Bloqueada";
+                badge2.className = "badge pending";
+                badge3.textContent = "Bloqueada";
+                badge3.className = "badge pending";
+                stage3El.classList.add('locked');
+                fillBar.style.width = "33%";
+                label1.classList.add('active-step');
+                label2.classList.remove('active-step');
+                label3.classList.remove('active-step');
+                return;
+            }
+
+            if (isStage2Complete()) {
+                stage3El.classList.remove('locked');
+                badge2.textContent = "Completado";
+                badge2.className = "badge completed";
+                badge3.textContent = "Desbloqueado";
+                badge3.className = "badge pending";
+                label2.classList.remove('active-step');
+                label3.classList.add('active-step');
+                progressPercent = 100;
+            } else {
+                stage3El.classList.add('locked');
+                badge2.textContent = "Pendiente";
+                badge2.className = "badge pending";
+                badge3.textContent = "Bloqueada";
+                badge3.className = "badge pending";
+                label3.classList.remove('active-step');
+            }
+
+            fillBar.style.width = progressPercent + "%";
+        }
+
+        function restoreUI() {
+            updateProgress();
+        }
+
+        function resetProgress() {
+            if (confirm("¿Estás seguro de que deseas reiniciar todo tu progreso?")) {
+                localStorage.removeItem('disramer_crypto_progress');
+                state = {
+                    stage1Checked: false,
+                    walletVerified: false,
+                    quiz1Correct: false,
+                    quiz2Correct: false,
+                    stage2Checked: false
+                };
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
+
